@@ -15,5 +15,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 WORKDIR /root
+RUN mkdir models
+
 COPY initServer.bash .
-CMD ["bash", "initServer.bash"]
+ENTRYPOINT ["bash", "initServer.bash"]

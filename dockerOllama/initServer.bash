@@ -5,22 +5,22 @@
 # Check if ollama is running
 ps cax | grep ollama > /dev/null
 if [ $? -eq 0 ]; then
-	echo "Ollama is already running"
+    echo "Ollama is already running"
 else
-	echo "Starting ollama"
-	ollama serve &
-	sleep 5
+    echo "Starting ollama"
+    OLLAMA_MODELS=/root/models ollama serve &
+    sleep 5
 fi
 
-
+#Command options
 if [ "$1" == "pull" ]; then
-	echo "Running in dev mode"
-	ollama pull tinyllama
+    echo "Running in dev mode"
+    ollama pull tinyllama
 elif [ "$1" == "run" ]; then
-	echo "Running in prod mode"
-	ollama run tinyllama
+    echo "Running in prod mode"
+    ollama run tinyllama
 else
-	echo "Invalid command"
+    echo "Invalid command"
 fi
 
 ```
