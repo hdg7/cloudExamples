@@ -1,6 +1,8 @@
+pystan
 numpy
 pandas
 matplotlib
 jupyter
 scikit-learn
 xgboost
+surprise
