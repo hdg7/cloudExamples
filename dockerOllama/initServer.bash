@@ -15,10 +15,10 @@ fi
 #Command options
 if [ "$1" == "pull" ]; then
     echo "Running in dev mode"
-    ollama pull tinyllama
+    ollama pull llama3.2:1b
 elif [ "$1" == "run" ]; then
     echo "Running in prod mode"
-    ollama run tinyllama
+    ollama run llama3.2:1b
 else
     echo "Invalid command"
 fi

@@ -104,7 +104,7 @@ def detect_objects(image_bytes):
     classes =[]
     results = model(image_bytes)  # predict on an image
     boxes = results[0].boxes
-    image_with_boxes = addBoxesImage(image_bytes, boxes)
+    image_with_boxes = addBoxesImage(image_bytes, boxes,model)
     return {"image": image_with_boxes}
 
 # We define helper functions 
@@ -126,7 +126,7 @@ def read_box(box):
     conf = round(box.conf[0].item(), 2)
     return [class_id, cords, conf]
                     
-def addBoxesImage(img,boxesInfo):
+def addBoxesImage(img,boxesInfo,model):
     colors = np.random.randint(0, 255, size=(len(model.names), 3), dtype="uint8")
     for box in boxesInfo:
         class_id=int(box.cls)
@@ -135,16 +135,16 @@ def addBoxesImage(img,boxesInfo):
         color = [int(c) for c in colors[class_id]]
         cv2.rectangle(img, (int(box.xyxy[0][0]), int(box.xyxy[0][1])), (int(box.xyxy[0][2]), int(box.xyxy[0][3])), color=color, thickness=2)
         text = f"{class_id}: {confidence:.2f}"
-        (text_width, text_height) = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, fontScale=10, thickness=2)[0]
+        (text_width, text_height) = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, thickness=2)[0]
         text_offset_x = int(box.xyxy[0][0])
         text_offset_y = int(box.xyxy[0][2]) - 5
         box_coords = ((text_offset_x, text_offset_y), (text_offset_x + text_width + 2, text_offset_y - text_height))
         overlay = img.copy()
         cv2.rectangle(overlay, box_coords[0], box_coords[1], color=color, thickness=cv2.FILLED)
         image = cv2.addWeighted(overlay, 0.6, img, 0.4, 0)
-        cv2.putText(image, text, (int(box.xyxy[0][0]), int(box.xyxy[0][2]) - 5), cv2.FONT_HERSHEY_SIMPLEX,fontScale=10, color=(0, 0, 0), thickness=2)
-        cv2.imwrite("example_yolo.png", image)
-        return image
+        cv2.putText(image, text, (int(box.xyxy[0][0]), int(box.xyxy[0][2]) - 5), cv2.FONT_HERSHEY_SIMPLEX,fontScale=0.5, color=(0, 0, 0), thickness=2)
+    cv2.imwrite("example_yolo.png", image)
+    return image
         #cv2.imwrite(currentImage + "_yolo.png", image)
 
                                                                                                                             
