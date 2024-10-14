@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from ultralytics import YOLO
 import cv2
+import numpy as np
 from fastapi import File, UploadFile
-
+from fastapi.responses import FileResponse
+import os
+import base64
 app=FastAPI()
 
 @app.get("/webTest", response_class=HTMLResponse)
@@ -35,6 +38,7 @@ async def read_items():
             <button id="classifyButton" onclick="sendImage('classify')">Classify Image</button>
             <button id="detectButton" onclick="sendImage('detect')">Detect Objects</button>
         </div>
+    <div id="result"></div>
     </div>
     <script>
         function sendImage(action) {
@@ -54,7 +58,21 @@ async def read_items():
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                // Handle the response data here
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '';
+                if (action === 'classify') {
+                    const detections = data.detections;
+                    const list = document.createElement('ul');
+                    detections.forEach(detection => {
+                        const item = document.createElement('li');
+                        item.textContent = detection;
+                        list.appendChild(item);
+                    });
+                    resultDiv.appendChild(list);
+                } else if (action === 'detect') {
+                    const image = document.createElement('img');
+                    image.src = 'data:image/jpeg;base64,' + data.image;
+                    resultDiv.appendChild(image);}
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -70,15 +88,17 @@ async def read_items():
 
 @app.post("/classify")
 async def classify_image(image: UploadFile = File(...)):
-    image_bytes = await image.read()
-    result = classify_image(image_bytes)
+    image_bytes = await image.read()    
+    img = cv2.imdecode(np.fromstring(image_bytes, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    result = classify_image(img)
     return result
 
 # We define a route /detect that accepts a POST request with an image file. The image is processed using a YOLO object detection model and the result is returned as a JSON response.
 @app.post("/detect")
 async def detect_objects(image: UploadFile = File(...)):
     image_bytes = await image.read()
-    result = detect_objects(image_bytes)
+    img = cv2.imdecode(np.fromstring(image_bytes, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    result = detect_objects(img)
     return result
 
 # We define a function classify_image that takes an image file as input, loads a pre-trained model, and classifies the image. The result is returned as a JSON response.
@@ -105,7 +125,10 @@ def detect_objects(image_bytes):
     results = model(image_bytes)  # predict on an image
     boxes = results[0].boxes
     image_with_boxes = addBoxesImage(image_bytes, boxes,model)
-    return {"image": image_with_boxes}
+    pwd = os.getcwd()
+    with open(pwd + "/example_yolo.png", 'rb') as f:
+        base64image = base64.b64encode(f.read())
+    return {"image": base64image}
 
 # We define helper functions 
 def load_model(model_type="classifier"):
