@@ -6,7 +6,7 @@ Some examples of ml code using cloud computing.
 
 Here you can find a bash cheatsheet:
 
-[Bash Commands]: https://icosbigdatacamp.github.io/2018-summer-camp/slides/BASH_Cheat_Sheet.pdf
+https://icosbigdatacamp.github.io/2018-summer-camp/slides/BASH_Cheat_Sheet.pdf
 
 ## Initial Set-Up
 
