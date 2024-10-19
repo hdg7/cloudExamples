@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-spark-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: spark-job
+        image: kmeans
+        imagePullPolicy: IfNotPresent
+        command: ["/opt/spark/bin/spark-submit", "--master", "spark://spark-master:7077", "kmeans.py"]
+      restartPolicy: Never

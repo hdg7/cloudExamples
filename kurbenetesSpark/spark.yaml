@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      containers:
+      - name: spark-worker
+        image: kmeans
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "1"
+        env:
+        - name: SPARK_MASTER_URL
+          value: spark://spark-master:7077
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+spec:
+  selector:
+    app: spark-master
+  ports:
+  - protocol: TCP
+    port: 7077
+    targetPort: 7077
+---   
