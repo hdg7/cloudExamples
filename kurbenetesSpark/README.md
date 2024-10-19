@@ -38,3 +38,33 @@ Run the JobL
 ```
 sudo kubectl apply -f spark.job.yaml
 ```
+
+Monitor the jod with:
+```
+sudo kubectl describe job my-spark-job
+```
+
+Once it finishes, check the results:
+```
+sudo kubectl logs job/my-spark-job
+```
+
+To kill the cluster:
+```
+sudo kind delete cluster --name mycluster
+```
+
+## For Monitoring
+
+If you need to monitor the pods, deploys, jobs use:
+```
+sudo kubectl get pod
+sudo kubectl get jobs
+sudo kubectl get deploy
+```
+
+To remove pod, deploys or jobs, use:
+```
+sudo kubectl delete deploy spark-worker
+sudo kubectl delete job my-spark-job
+```
