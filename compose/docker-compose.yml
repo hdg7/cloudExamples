@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+   build: ./app
+   ports:
+    - "8888:8888"
+   depends_on:
+    - redis
+
+  redis:
+    image: redis:alpine
+      
