@@ -1,7 +1,7 @@
 import aio_pika, asyncio, io, uuid, os
 from ultralytics import YOLO
 from PIL import Image, ImageDraw
-from db import detections, Session
+from dbFirebase import save_detection, update_image_path
 
 RABBITMQ_URL = "amqp://guest:guest@rabbitmq/"
 IMAGE_OUTPUT_DIR = "data/images"
@@ -13,7 +13,6 @@ async def handle_image(message: aio_pika.IncomingMessage):
     async with message.process():
         image = Image.open(io.BytesIO(message.body)).convert("RGB")
         results = model(image)
-        session = Session()
         
         for result in results:
             draw = ImageDraw.Draw(image)
@@ -24,12 +23,12 @@ async def handle_image(message: aio_pika.IncomingMessage):
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
                 draw.text((x1, y1), f"{label} {conf:.2f}", fill="red")
                 
-                session.execute(detections.insert().values(
+                elem=save_detection(
                     label=label,
                     confidence=conf,
                     x1=x1, y1=y1, x2=x2, y2=y2,
                     image_path=None  # filled below
-                ))
+                )
 
         # Save annotated image
         filename = f"{uuid.uuid4()}.jpg"
@@ -37,9 +36,7 @@ async def handle_image(message: aio_pika.IncomingMessage):
         image.save(image_path)
         
         # Update DB with image path
-        session.execute(f"UPDATE detections SET image_path = '{image_path}' WHERE image_path IS NULL")
-        session.commit()
-        session.close()
+        update_image_path(elem, image_path)
         print(f"Processed and saved: {image_path}")
         
 async def main():
